@@ -19,7 +19,7 @@ const Dashboard = () => {
     const fetchCountsAndTickets = async () => {
       try {
         // Fetch counts
-        const countsResponse = await fetch(`https://localhost:7217/api/Tickets/status-count?email=${user.email}`);
+        const countsResponse = await fetch(`https://localhost:7217/api/Ticket/status-count?email=${user.email}`);
         const countsData = await countsResponse.json();
         setCounts({
           active: countsData.activeCount,
@@ -29,7 +29,7 @@ const Dashboard = () => {
         });
 
         // Fetch tickets
-        const ticketsResponse = await fetch(`https://localhost:7217/api/Tickets/ByUser?email=${user.email}`);
+        const ticketsResponse = await fetch(`https://localhost:7217/api/Ticket/ByUser?email=${user.email}`);
         const ticketsData = await ticketsResponse.json();
         setTickets(ticketsData);
 

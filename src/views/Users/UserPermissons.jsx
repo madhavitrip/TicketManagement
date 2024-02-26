@@ -1,144 +1,179 @@
-import React from 'react'
-
-const UserPermissons = () => {
-  return (
-    <div>UserPermissons</div>
-  )
-}
-
-export default UserPermissons
-
-
-// import React from 'react'
-// import { Container } from 'react-bootstrap'
-// import { Form } from 'react-router-dom'
-
-// const UserPermissons = () => {
-
-//     const handleInputChange = (e) => {
-//         const { name, type, checked } = e.target;
-
-//         if (
-//           name === "canCreate" ||
-//           name === "canView" ||
-//           name === "canEdit" ||
-//           name === "canDelete"
-//         ) {
-//           // Declare modulePermissions array
-//           const modulePermissions = [
-//             "canCreate",
-//             "canView",
-//             "canEdit",
-//             "canDelete",
-//           ];
-
-//           const permissionIndex = user.permissions.indexOf(name);
-
-//           if (permissionIndex === -1) {
-//             // If the permission is not in the list, add it and check all previous permissions for that module
-//             const currentIndex = modulePermissions.indexOf(name);
-
-//             setUser((prevUser) => ({
-//               ...prevUser,
-//               permissions: [
-//                 ...prevUser.permissions,
-//                 ...modulePermissions.slice(0, currentIndex + 1),
-//               ],
-//             }));
-//           } else {
-//             // If the permission is in the list, uncheck it and remove all subsequent permissions for that module
-//             setUser((prevUser) => ({
-//               ...prevUser,
-//               permissions: prevUser.permissions.filter(
-//                 (perm) => modulePermissions.indexOf(perm) < permissionIndex,
-//               ),
-//             }));
-//           }
-//         } else {
-//           // For other input fields, handle as before
-//           setUser({
-//             ...user,
-//             [name]: type === "checkbox" ? checked : e.target.value,
-//           });
-//         }
-//       };
-
-//       const handleSubmit = async (e) => {
-//         e.preventDefault();
-//         user.createdBy = 1;
-
-//         onAddUser(user);
-
-//         setUser({
-//           firstName: "",
-//           middleName: "",
-//           lastName: "",
-//           email: "",
-//           mobileNo: "",
-//           designation: "",
-//           permissions: [],
-//         });
-
-//     return (
-//         <div>
-//             <Container fluid>
-//                 <Form>
-//                     <Form.Group controlId="formPermissions" className="text-center">
-//                         <Form.Label className="font-weight-bold">Permissions</Form.Label>
-//                         <Table bordered responsive className="text-center">
-//                             <thead>
-//                                 <tr>
-//                                     <th>Module Name</th>
-//                                     <th>Create</th>
-//                                     <th>View</th>
-//                                     <th>Edit</th>
-//                                     <th>Delete</th>
-//                                 </tr>
-//                             </thead>
-//                             <tbody>
-//                                 <tr>
-//                                     <td>Users</td>
-//                                     <td>
-//                                         <Form.Check
-//                                             type="checkbox"
-//                                             name="canCreate"
-//                                             checked={user.permissions.includes("canCreate")}
-//                                             onChange={handleInputChange}
-//                                         />
-//                                     </td>
-//                                     <td>
-//                                         <Form.Check
-//                                             type="checkbox"
-//                                             name="canView"
-//                                             checked={user.permissions.includes("canView")}
-//                                             onChange={handleInputChange}
-//                                         />
-//                                     </td>
-//                                     <td>
-//                                         <Form.Check
-//                                             type="checkbox"
-//                                             name="canEdit"
-//                                             checked={user.permissions.includes("canEdit")}
-//                                             onChange={handleInputChange}
-//                                         />
-//                                     </td>
-//                                     <td>
-//                                         <Form.Check
-//                                             type="checkbox"
-//                                             name="canDelete"
-//                                             checked={user.permissions.includes("canDelete")}
-//                                             onChange={handleInputChange}
-//                                         />
-//                                     </td>
-//                                 </tr>
-//                                 {/* Add more rows for additional modules */}
-//                             </tbody>
-//                         </Table>
-//                     </Form.Group>
-//                 </Form>
-//             </Container>
-//         </div>
-//     )
-// }
-
-// export default UserPermissons
+import React, { useEffect, useState } from 'react'; 
+import { Container, Row, Col, Card, Table, Form, Button } from 'react-bootstrap'; 
+import 'bootstrap/dist/css/bootstrap.min.css'; 
+import axios from 'axios'; 
+import { useParams } from 'react-router-dom'; 
+ 
+const PermissionPage = () => { 
+  const { userId } = useParams(); 
+  const parsedUserID = parseInt(userId, 10); 
+  const [permissions, setPermissions] = useState([]); 
+  const [modules, setModules] = useState([]); 
+ 
+  useEffect(() => { 
+    // Fetch user's existing permissions 
+    const fetchUserPermissions = async () => { 
+      try { 
+        const response = await axios.get(`https://localhost:7217/api/Permission/ByUserId/${userId}`); 
+        setPermissions(response.data); 
+      } catch (error) { 
+        console.error('Error fetching user permissions:', error); 
+      } 
+    }; 
+ 
+    fetchUserPermissions(); 
+  }, [userId]); 
+ 
+  useEffect(() => { 
+    // Fetch all modules 
+    const fetchModules = async () => { 
+      try { 
+        const response = await axios.get('https://localhost:7217/api/Modules'); 
+        setModules(response.data); 
+      } catch (error) { 
+        console.error('Error fetching modules:', error); 
+      } 
+    }; 
+ 
+    fetchModules(); 
+  }, []); 
+ 
+  const handlePermissionChange = (moduleName, permissionType, isChecked) => { 
+    const updatedPermissions = [...permissions]; 
+    const moduleIndex = updatedPermissions.findIndex((module) => module.name === moduleName); 
+ 
+    if (moduleIndex !== -1) { 
+      const module = updatedPermissions[moduleIndex]; 
+      module[permissionType] = isChecked; 
+      updatedPermissions[moduleIndex] = module; 
+    } else { 
+      updatedPermissions.push({ 
+        name: moduleName, 
+        candelete: false, 
+        canview: false, 
+        canadd: false, 
+        canupdate: false, 
+        [permissionType]: isChecked, 
+      }); 
+    } 
+ 
+    setPermissions(updatedPermissions); 
+  }; 
+ 
+  const handleAddPermission = () => { 
+ 
+      // Transform permissions to the desired format 
+      const transformedPermissions = permissions.map(({ name, canview, canadd, canupdate, candelete }) => ({ 
+        userId:parsedUserID, 
+        Id: modules.find((mod) => mod.name === name).id, // Assuming there is a module ID associated with each name 
+        canAddOnly: canadd, 
+        canDeleteOnly: candelete, 
+        canUpdateOnly: canupdate, 
+        canViewOnly: canview, 
+      })); 
+    // Send the updated permissions to your API 
+    axios.post('https://localhost:7217/api/Permission', transformedPermissions) 
+      .then(response => { 
+        // Handle success, e.g., show a success message 
+        console.log('Permissions added successfully:', response.data); 
+      }) 
+      .catch(error => { 
+        // Handle error, e.g., show an error message 
+        console.error('Error adding permissions:', error); 
+      }); 
+  }; 
+ 
+  return ( 
+    <Container> 
+      <Row className="justify-content-center mt-5"> 
+        <Col md={8}> 
+          <Card> 
+            <Card.Header as="h5" className="text-center">Module Permissions</Card.Header> 
+            <Card.Body> 
+              <Form> 
+                <Table bordered> 
+                  <thead> 
+                    <tr> 
+                      <th>Module Name</th> 
+                      <th>Can View</th> 
+                      <th>Can Add</th> 
+                      <th>Can Update</th> 
+                      <th>Can Delete</th> 
+                    </tr> 
+                  </thead> 
+                  <tbody> 
+                    {modules.map((mod) => ( 
+                      <tr key={mod.id}> 
+                        <td>{mod.name}</td> 
+                        <td> 
+                          <Form.Check 
+                            type="switch" 
+                            id={`${mod.name}-canview-switch`} 
+                            label="" 
+                            onChange={(e) => handlePermissionChange(mod.name, 'canview', e.target.checked)} 
+                            checked={permissions.some((p) => p.name === mod.name && p.canview)}
+/> 
+                        </td> 
+                        <td> 
+                          <Form.Check 
+                            type="switch" 
+                            id={`${mod.name}-canadd-switch`} 
+                            label="" 
+                            onChange={(e) => handlePermissionChange(mod.name, 'canadd', e.target.checked)} 
+                            checked={permissions.some((p) => p.name === mod.name && p.canadd)} 
+                          /> 
+                        </td> 
+                        <td> 
+                          <Form.Check 
+                            type="switch" 
+                            id={`${mod.name}-canupdate-switch`} 
+                            label="" 
+                            onChange={(e) => handlePermissionChange(mod.name, 'canupdate', e.target.checked)} 
+                            checked={permissions.some((p) => p.name === mod.name && p.canupdate)} 
+                          /> 
+                        </td> 
+                        <td> 
+                          <Form.Check 
+                            type="switch" 
+                            id={`${mod.name}-candelete-switch`} 
+                            label="" 
+                            onChange={(e) => handlePermissionChange(mod.name, 'candelete', e.target.checked)} 
+                            checked={permissions.some((p) => p.name === mod.name && p.candelete)} 
+                          /> 
+                        </td> 
+                      </tr> 
+                    ))} 
+                  </tbody> 
+                </Table> 
+              </Form> 
+            </Card.Body> 
+          </Card> 
+        </Col> 
+      </Row> 
+ 
+      <Row className="justify-content-center mt-3"> 
+        <Col md={8}> 
+          <Card className="mt-3"> 
+            <Card.Body> 
+              <div className="permissions-summary"> 
+                <h5 className="text-center mb-4">Permissions Summary</h5> 
+                <ul className="list-unstyled"> 
+                  {permissions.map((module, index) => ( 
+                    <li key={index}> 
+                      <strong>{module.name}</strong>: {Object.entries(module).filter(([key, value]) => value && key !== 'name').map(([key]) => key).join(', ')} 
+                    </li> 
+                  ))} 
+                </ul> 
+                <Button variant="primary" onClick={handleAddPermission}> 
+                  Add Permission 
+                </Button> 
+              </div> 
+            </Card.Body> 
+          </Card> 
+        </Col> 
+      </Row> 
+    </Container> 
+  ); 
+}; 
+ 
+export default PermissionPage;

@@ -2,14 +2,14 @@ import axios from "axios";
 import React, { useState,useEffect } from 'react';
 import { useUser } from './../../context/UserContext';
 import {  Spinner } from 'react-bootstrap';
-
-
+import { useNavigate } from "react-router-dom";
 
 const onClickViewTicket = () => {
-  window.location.href = './ViewAllTickets';
+  window.location.href = '/Tickets';
 }
 
 const AddTicket = () => {
+  const navigate= useNavigate();
   const { user } = useUser();
   const [loading,setLoading]= useState(false)
   const[ticketType,setTicketType]=useState([]);
@@ -92,7 +92,7 @@ const AddTicket = () => {
     }
   
     try {
-      const res = await axios.post('https://localhost:7217/api/Tickets', formData);
+      const res = await axios.post('https://localhost:7217/api/Ticket', formData);
       console.log(res);
       setMessage('Ticket added successfully!');
       setLoading(false);
@@ -109,6 +109,7 @@ const AddTicket = () => {
         description: '',
         assigneeEmail: '',
       });
+      navigate(`/Tickets/AddTicket/${res.data.userId}`);
     } catch (err) {
       console.error(err);
       setMessage('Error adding ticket. Please try again.');
@@ -268,8 +269,6 @@ const AddTicket = () => {
               disabled
             />
           </div>
-
-
 
           {/* Assigned To */}
           <label htmlFor="assigneeEmail" className="col-sm-3 col-form-label text-end">

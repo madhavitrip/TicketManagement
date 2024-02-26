@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Table, Nav, Tab, Collapse, Form, Button, ListGroup } from 'react-bootstrap';
 import axios from 'axios';
 import './Department.css';
+import PermissionChecker from './../../context/PermissionChecker';
 
-const Department = () => {
+const Department = (hasPermission) => {
     const [activeTab, setActiveTab] = useState('departments');
     const [departments, setDepartments] = useState([]);
     const [newDepartment, setNewDepartment] = useState('');
@@ -192,15 +193,17 @@ const Department = () => {
 
                                 {/* Create Department Form */}
                                 <Col md={6} className="position-relative">
-                                    <Button
-                                        onClick={() => setOpenCreateDepartment(!openCreateDepartment)}
-                                        aria-controls="create-department-collapse"
-                                        aria-expanded={openCreateDepartment}
-                                        className="mb-3 position-absolute top-0 end-0"
+                                    {hasPermission(3, "canAddOnly") &&
+                                        <Button
+                                            onClick={() => setOpenCreateDepartment(!openCreateDepartment)}
+                                            aria-controls="create-department-collapse"
+                                            aria-expanded={openCreateDepartment}
+                                            className="mb-3 position-absolute top-0 end-0"
 
-                                    >
-                                        Create
-                                    </Button>
+                                        >
+                                            Create
+                                        </Button>
+                                    }
                                     {
                                         openCreateDepartment && (
                                             <Collapse in={openCreateDepartment}>
@@ -264,231 +267,233 @@ const Department = () => {
                                 </Col>
                                 {/* Create Role Form */}
                                 <Col md={6} className="position-relative">
-                                    <Button
-                                        onClick={() => setOpenCreateRole(!openCreateRole)}
-                                        aria-controls="create-role-collapse"
-                                        aria-expanded={openCreateRole}
-                                        className="mb-3 position-absolute top-0 end-0"
+                                {hasPermission(3, "canAddOnly") &&
+                                        <Button
+                                            onClick={() => setOpenCreateRole(!openCreateRole)}
+                                            aria-controls="create-role-collapse"
+                                            aria-expanded={openCreateRole}
+                                            className="mb-3 position-absolute top-0 end-0"
 
-                                    >
-                                        Create
-                                    </Button>
-                                    {
-                                        openCreateRole && (
-                                            <Collapse in={openCreateRole}>
-                                                <div id="create-department-collapse">
-                                                    <div className="mt-3"> {/* Add margin top to create space below the button */}
-                                                        <div className="card">
-                                                            <div className="card-header">
-                                                                <div className="text-header">Create Role</div>
-                                                            </div>
-                                                            <div className="card-body">
-                                                                <Form onSubmit={handleCreateRole}>
-                                                                    <div className="form-group">
-                                                                        <label htmlFor="role">Enter New Role:</label>
-                                                                        <input
-                                                                            required=""
-                                                                            className="form-control"
-                                                                            name="role"
-                                                                            id="role"
-                                                                            type="text"
-                                                                            value={newRoles}
-                                                                            onChange={(e) => setNewRoles(e.target.value)}
-                                                                        />
-                                                                    </div>
-                                                                    <Button type="submit" className="btn">
-                                                                        Submit
-                                                                    </Button>
-                                                                </Form>
-                                                            </div>
+                                        >
+                                            Create
+                                        </Button>
+                                    }
+                                {
+                                    openCreateRole && (
+                                        <Collapse in={openCreateRole}>
+                                            <div id="create-department-collapse">
+                                                <div className="mt-3"> {/* Add margin top to create space below the button */}
+                                                    <div className="card">
+                                                        <div className="card-header">
+                                                            <div className="text-header">Create Role</div>
+                                                        </div>
+                                                        <div className="card-body">
+                                                            <Form onSubmit={handleCreateRole}>
+                                                                <div className="form-group">
+                                                                    <label htmlFor="role">Enter New Role:</label>
+                                                                    <input
+                                                                        required=""
+                                                                        className="form-control"
+                                                                        name="role"
+                                                                        id="role"
+                                                                        type="text"
+                                                                        value={newRoles}
+                                                                        onChange={(e) => setNewRoles(e.target.value)}
+                                                                    />
+                                                                </div>
+                                                                <Button type="submit" className="btn">
+                                                                    Submit
+                                                                </Button>
+                                                            </Form>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </Collapse>
-                                        )}
-                                </Col>
+                                            </div>
+                                        </Collapse>
+                                    )}
+                            </Col>
                             </Row>
                         }
-                        {
-                            activeTab === 'project' &&
+                    {
+                        activeTab === 'project' &&
 
-                            <Row>
-                                {/* Project List */}
-                                <Col md={6}>
-                                    <h4>Projects</h4>
-                                    <ListGroup>
-                                        <ul className="responsive-table">
-                                            <li className="table-header mt-3">
-                                                <div className="col col-1">SNo.</div>
-                                                <div className="col col-2">Projects</div>
-                                            </li>
-                                            {project.map((project) => (
-                                                <ListGroup.Item key={project.id}>
-                                                    <li className="table-row mt-1">
-                                                        <div className="col col-1" data-label="SNo.">{project.id}</div>
-                                                        <div className="col col-2" data-label="Project">{project.name}</div>
-                                                    </li>
-                                                </ListGroup.Item>
-                                            ))}
-                                        </ul>
-                                    </ListGroup>
-                                </Col>
+                        <Row>
+                            {/* Project List */}
+                            <Col md={6}>
+                                <h4>Projects</h4>
+                                <ListGroup>
+                                    <ul className="responsive-table">
+                                        <li className="table-header mt-3">
+                                            <div className="col col-1">SNo.</div>
+                                            <div className="col col-2">Projects</div>
+                                        </li>
+                                        {project.map((project) => (
+                                            <ListGroup.Item key={project.id}>
+                                                <li className="table-row mt-1">
+                                                    <div className="col col-1" data-label="SNo.">{project.id}</div>
+                                                    <div className="col col-2" data-label="Project">{project.name}</div>
+                                                </li>
+                                            </ListGroup.Item>
+                                        ))}
+                                    </ul>
+                                </ListGroup>
+                            </Col>
 
-                                {/* Create Department Form */}
-                                <Col md={6} className="position-relative">
-                                    <Button
-                                        onClick={() => setOpenProject(!openProject)}
-                                        aria-controls="create-project-collapse"
-                                        aria-expanded={openProject}
-                                        className="mb-3 position-absolute top-0 end-0"
+                            {/* Create Department Form */}
+                            <Col md={6} className="position-relative">
+                                <Button
+                                    onClick={() => setOpenProject(!openProject)}
+                                    aria-controls="create-project-collapse"
+                                    aria-expanded={openProject}
+                                    className="mb-3 position-absolute top-0 end-0"
 
-                                    >
-                                        Create
-                                    </Button>
-                                    {
-                                        openProject && (
-                                            <Collapse in={openProject}>
-                                                <div id="create-Project-collapse">
-                                                    <div className="mt-3"> {/* Add margin top to create space below the button */}
-                                                        <div className="card">
-                                                            <div className="card-header">
-                                                                <div className="text-header">Create Project</div>
-                                                            </div>
-                                                            <div className="card-body">
-                                                                <Form onSubmit={handleCreateProjectType}>
-                                                                    <div className="form-group">
-                                                                        <label htmlFor="project">Enter New Project:</label>
-                                                                        <input
-                                                                            required=""
-                                                                            className="form-control"
-                                                                            name="project"
-                                                                            id="project"
-                                                                            type="text"
-                                                                            value={newProject}
-                                                                            onChange={(e) => setNewProject(e.target.value)}
-                                                                        />
-                                                                    </div>
-                                                                    <Button type="submit" className="btn">
-                                                                        Submit
-                                                                    </Button>
-                                                                </Form>
-                                                            </div>
+                                >
+                                    Create
+                                </Button>
+                                {
+                                    openProject && (
+                                        <Collapse in={openProject}>
+                                            <div id="create-Project-collapse">
+                                                <div className="mt-3"> {/* Add margin top to create space below the button */}
+                                                    <div className="card">
+                                                        <div className="card-header">
+                                                            <div className="text-header">Create Project</div>
+                                                        </div>
+                                                        <div className="card-body">
+                                                            <Form onSubmit={handleCreateProjectType}>
+                                                                <div className="form-group">
+                                                                    <label htmlFor="project">Enter New Project:</label>
+                                                                    <input
+                                                                        required=""
+                                                                        className="form-control"
+                                                                        name="project"
+                                                                        id="project"
+                                                                        type="text"
+                                                                        value={newProject}
+                                                                        onChange={(e) => setNewProject(e.target.value)}
+                                                                    />
+                                                                </div>
+                                                                <Button type="submit" className="btn">
+                                                                    Submit
+                                                                </Button>
+                                                            </Form>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </Collapse>
-                                        )}
-                                </Col>
-                            </Row>
-                        }
-                        {
-                            activeTab === 'ticketType' &&
+                                            </div>
+                                        </Collapse>
+                                    )}
+                            </Col>
+                        </Row>
+                    }
+                    {
+                        activeTab === 'ticketType' &&
 
-                            <Row>
-                                {/*TicketType List */}
-                                <Col md={6}>
-                                    <h4>Ticket</h4>
-                                    <ListGroup>
-                                        <ul className="responsive-table">
-                                            <li className="table-header mt-3">
-                                                <div className="col col-1">SNo.</div>
-                                                <div className="col col-2">TicketType</div>
+                        <Row>
+                            {/*TicketType List */}
+                            <Col md={6}>
+                                <h4>Ticket</h4>
+                                <ListGroup>
+                                    <ul className="responsive-table">
+                                        <li className="table-header mt-3">
+                                            <div className="col col-1">SNo.</div>
+                                            <div className="col col-2">TicketType</div>
 
-                                            </li>
-                                            {ticketType.map((ticket) => (
-                                                <ListGroup.Item key={ticket.id}>
-                                                    <li className="table-row mt-1">
-                                                        <div className="col col-1" data-label="SNo.">{ticket.id}</div>
-                                                        <div className="col col-2" data-label="TicketType">{ticket.ticketType}</div>
-                                                    </li>
-                                                </ListGroup.Item>
-                                            ))}
-                                        </ul>
-                                    </ListGroup>
-                                </Col>
+                                        </li>
+                                        {ticketType.map((ticket) => (
+                                            <ListGroup.Item key={ticket.id}>
+                                                <li className="table-row mt-1">
+                                                    <div className="col col-1" data-label="SNo.">{ticket.id}</div>
+                                                    <div className="col col-2" data-label="TicketType">{ticket.ticketType}</div>
+                                                </li>
+                                            </ListGroup.Item>
+                                        ))}
+                                    </ul>
+                                </ListGroup>
+                            </Col>
 
-                                {/* Create TicketType Form */}
-                                <Col md={6} className="position-relative">
-                                    <Button
-                                        onClick={() => setOpenTicketType(!openTicketType)}
-                                        aria-controls="create-TicketType-collapse"
-                                        aria-expanded={openTicketType}
-                                        className="mb-3 position-absolute top-0 end-0"
+                            {/* Create TicketType Form */}
+                            <Col md={6} className="position-relative">
+                                <Button
+                                    onClick={() => setOpenTicketType(!openTicketType)}
+                                    aria-controls="create-TicketType-collapse"
+                                    aria-expanded={openTicketType}
+                                    className="mb-3 position-absolute top-0 end-0"
 
-                                    >
-                                        Create
-                                    </Button>
-                                    {
-                                        openTicketType && (
-                                            <Collapse in={openTicketType}>
-                                                <div id="create-TicketType-collapse">
-                                                    <div className="mt-3"> {/* Add margin top to create space below the button */}
-                                                        <div className="card">
-                                                            <div className="card-header">
-                                                                <div className="text-header">Create TicketType</div>
-                                                            </div>
-                                                            <div className="card-body">
-                                                                <Form onSubmit={handleCreateTicketType}>
-                                                                    <div className="form-group">
-                                                                        <label htmlFor="TicketType">Enter New TicketType:</label>
-                                                                        <input
-                                                                            required=""
-                                                                            className="form-control"
-                                                                            name="TicketType"
-                                                                            id="TicketType"
-                                                                            type="text"
-                                                                            value={newTicketType}
-                                                                            onChange={(e) => setNewTicketType(e.target.value)}
-                                                                        />
-                                                                    </div>
-                                                                    <Button type="submit" className="btn">
-                                                                        Submit
-                                                                    </Button>
-                                                                </Form>
-                                                            </div>
+                                >
+                                    Create
+                                </Button>
+                                {
+                                    openTicketType && (
+                                        <Collapse in={openTicketType}>
+                                            <div id="create-TicketType-collapse">
+                                                <div className="mt-3"> {/* Add margin top to create space below the button */}
+                                                    <div className="card">
+                                                        <div className="card-header">
+                                                            <div className="text-header">Create TicketType</div>
+                                                        </div>
+                                                        <div className="card-body">
+                                                            <Form onSubmit={handleCreateTicketType}>
+                                                                <div className="form-group">
+                                                                    <label htmlFor="TicketType">Enter New TicketType:</label>
+                                                                    <input
+                                                                        required=""
+                                                                        className="form-control"
+                                                                        name="TicketType"
+                                                                        id="TicketType"
+                                                                        type="text"
+                                                                        value={newTicketType}
+                                                                        onChange={(e) => setNewTicketType(e.target.value)}
+                                                                    />
+                                                                </div>
+                                                                <Button type="submit" className="btn">
+                                                                    Submit
+                                                                </Button>
+                                                            </Form>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </Collapse>
-                                        )}
-                                </Col>
-                            </Row>
-                        }
-                    </Container>
-                    <Tab.Content>
-                        <Tab.Pane eventKey="departments">
-                            <Table responsive hover bordered striped>
-                                
-                            </Table>
-                        </Tab.Pane>
+                                            </div>
+                                        </Collapse>
+                                    )}
+                            </Col>
+                        </Row>
+                    }
+                </Container>
+                <Tab.Content>
+                    <Tab.Pane eventKey="departments">
+                        <Table responsive hover bordered striped>
 
-                        <Tab.Pane eventKey="roles">
-                            <Table responsive hover bordered striped>
-                               
-                            </Table>
-                        </Tab.Pane>
+                        </Table>
+                    </Tab.Pane>
 
-                        <Tab.Pane eventKey="ticketType">
-                            <Table responsive hover bordered striped>
-                               
-                            </Table>
-                        </Tab.Pane>
+                    <Tab.Pane eventKey="roles">
+                        <Table responsive hover bordered striped>
 
-                        <Tab.Pane eventKey="project">
-                            <Table responsive hover bordered striped>
-                                {/* Render project data here */}
-                                
-                            </Table>
-                        </Tab.Pane>
-                    </Tab.Content>
+                        </Table>
+                    </Tab.Pane>
 
+                    <Tab.Pane eventKey="ticketType">
+                        <Table responsive hover bordered striped>
 
-                </Col>
+                        </Table>
+                    </Tab.Pane>
+
+                    <Tab.Pane eventKey="project">
+                        <Table responsive hover bordered striped>
+                            {/* Render project data here */}
+
+                        </Table>
+                    </Tab.Pane>
+                </Tab.Content>
 
 
+            </Col>
 
-            </Row>
-        </Container>
+
+
+        </Row>
+        </Container >
     );
 };
 

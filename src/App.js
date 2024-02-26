@@ -5,6 +5,7 @@ import { CSpinner, useColorModes } from '@coreui/react'
 import './scss/style.scss'
 import { UserProvider } from './context/UserContext';
 import PrivateRoute from './components/PrivateRoute'
+import AccessDeniedPage from './views/pages/page403/AccessDenied'
 
 
 // Containers
@@ -53,6 +54,7 @@ const App = () => {
           <Route exact path="/register" name="Register Page" element={<Register />} />
           <Route exact path="/404" name="Page 404" element={<Page404 />} />
           <Route exact path="/500" name="Page 500" element={<Page500 />} />
+          <Route exact path="/403" name="Access Denied" element={<AccessDeniedPage />} />
           <Route exact path="/ForgotPassword" name="Forgot Password" element={<ForgotPassword />} />
           <Route exact path="/ChangePassword" name="Change Password" element={<ChangePassword/>}/>
           <Route path="*" name="Home" element={<PrivateRoute element={<DefaultLayout/>}/>} />

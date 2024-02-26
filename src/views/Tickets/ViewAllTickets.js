@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react'; 
 import TicketsTable from './TicketsTable'; 
 import { Spinner, Button, Dropdown, DropdownButton } from 'react-bootstrap'; 
- 
+import PermissionChecker from 'src/context/PermissionChecker';
+import {Link} from "react-router-dom";
+
+
 const ViewAllTickets = () => { 
   const [tickets, setTickets] = useState([]); 
   const [filteredTickets, setFilteredTickets] = useState([]); 
@@ -10,7 +13,7 @@ const ViewAllTickets = () => {
   const [statusFilter, setStatusFilter] = useState('All'); 
  
   const onClickAddTicket = () => { 
-    window.location.href = './AddTicket'; 
+    window.location.href = '/Tickets/AddTicket'; 
   } 
  
   const fetchData = async (url) => { 
@@ -30,7 +33,7 @@ const ViewAllTickets = () => {
   useEffect(() => { 
     const fetchTickets = async () => { 
       try { 
-        const data = await fetchData('https://localhost:7217/api/Tickets'); 
+        const data = await fetchData('https://localhost:7217/api/Ticket'); 
         setTickets(data); 
         setLoading(false); 
       } catch (error) { 
@@ -65,6 +68,8 @@ const ViewAllTickets = () => {
   
  
   return ( 
+    <PermissionChecker>
+      {({ hasPermission }) => (
     <div> 
       <div className='d-flex justify-content-between mb-3'> 
         <h4>All Tickets</h4> 
@@ -83,10 +88,11 @@ const ViewAllTickets = () => {
             <Dropdown.Item onClick={() => setStatusFilter('Unassigned')}>Unassigned</Dropdown.Item> 
             <Dropdown.Item onClick={() => setStatusFilter('Completed')}>Completed</Dropdown.Item> 
           </DropdownButton> 
- 
-          <Button type="button" className="btn btn-primary" onClick={onClickAddTicket}> 
+           {hasPermission(2,"canAddOnly")&&(
+          <Button as ={Link}to="/Tickets/AddTicket" className="btn btn-primary" onClick={onClickAddTicket}> 
             Add Ticket 
           </Button> 
+           )}
         </div> 
       </div> 
       <div> 
@@ -97,10 +103,12 @@ const ViewAllTickets = () => {
             </Spinner> 
           </div> 
         ) : ( 
-          <TicketsTable tickets={statusFilter !== 'All' || priorityFilter !== 'All' ? filteredTickets : tickets} /> 
+          <TicketsTable tickets={statusFilter !== 'All' || priorityFilter !== 'All' ? filteredTickets : tickets} hasPermission={hasPermission} /> 
         )} 
       </div> 
     </div> 
+      )}
+    </PermissionChecker>
   ); 
 }; 
  

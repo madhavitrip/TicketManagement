@@ -13,7 +13,7 @@ const PermissionChecker = ({ children }) => {
     const fetchPermissions = async () => {
       try {
         const userId = user.userId; // Assuming you are using a fixed userId for now
-        const response = await axios.get(`https://localhost:7247/api/Permissions/ByUser/${userId}`);
+        const response = await axios.get(`https://localhost:7217/api/Permission/ByUserId/${userId}`);
         setUserPermissions(response.data);
         setLoading(false);
         console.log(response.data);
@@ -27,7 +27,7 @@ const PermissionChecker = ({ children }) => {
   }, [user]);
 
   const hasPermission = (moduleId, permissionType) => {
-    const modulePermissions = userPermissions.find(p => p.module_Id === moduleId);
+    const modulePermissions = userPermissions.find(p => p.id === moduleId);
     return modulePermissions && modulePermissions[permissionType];
   };
 

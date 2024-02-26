@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { Container, Button } from "react-bootstrap";
 import PermissionChecker from "./../../context/PermissionChecker";
 
-
+const apiUrl = process.env.REACT_APP_API_USERS;
 const AllUsers = () => {
   const [users, setUsers] = useState([]);
 
@@ -14,7 +14,7 @@ const OnClickAddUser = () => {
 
   useEffect(() => {
     // Fetch user data from the API
-    fetch("https://localhost:7217/api/Users")
+    fetch(apiUrl)
       .then((res) => res.json())
       .then((data) => {
         // Map properties to match UserTable expectations
@@ -40,8 +40,8 @@ const OnClickAddUser = () => {
     <Container className="userform border border-3 p-4 my-3">
       <div className="d-flex justify-content-between m-3">
         <h3>Users</h3>
-        {hasPermission(1, "can_Add") && (
-        <Button as={Link} to="add-user/" className="btn" onClick={OnClickAddUser}>
+        {hasPermission(1, "canAddOnly") && (
+        <Button as={Link} to="AddUser/" className="btn" onClick={OnClickAddUser}>
           Add User
         </Button>
         )}

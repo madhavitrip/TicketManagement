@@ -61,7 +61,7 @@ const Priority = React.lazy(() => import('./views/PriorityTicket/Priority'))
 const Department = React.lazy(() => import('./views/Department/Departments'))
 const EditUser = React.lazy(() => import('./views/Users/EditUser'))
 
-const Notification = React.lazy(() => import('./views/Notification/notify'))
+
 
 //unused
 const ActiveStatus = React.lazy(() => import('./views/TicketStatus/ActiveStatus'))

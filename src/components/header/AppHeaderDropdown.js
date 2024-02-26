@@ -26,7 +26,7 @@ const AppHeaderDropdown = () => {
         <CAvatar src={avatar} size="md" />
       </CDropdownToggle>
       <CDropdownMenu className="pt-0" placement="bottom-end">
-        <CDropdownItem href="#">
+        <CDropdownItem href="/Users/Views">
           <CIcon icon={cilUser} className="me-2" />
           Profile
         </CDropdownItem>

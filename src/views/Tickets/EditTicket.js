@@ -7,6 +7,13 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCommentDots } from '@fortawesome/free-regular-svg-icons';
 import { useUser } from './../../context/UserContext';
 
+
+
+const apiUrl1 = process.env.REACT_APP_API_TICKETTYPE
+const apiUrl2= process.env.REACT_APP_API_USERS
+const apiUrl3= process.env.REACT_APP_API_TICKETS
+const apiUrl4= process.env.REACT_APP_API_TICKETFLOW
+
 const EditTicket = () => {
   const { user } = useUser();
   const { ticketId } = useParams();
@@ -44,8 +51,8 @@ const EditTicket = () => {
         const [ticketResponse, commentsResponse, assigneesResponse, ticketTypesResponse] = await Promise.all([
           axios.get(`https://localhost:7217/api/Tickets/${ticketId}`),
           axios.get(`https://localhost:7217/api/TicketFlow/CommentsByTicketId/${ticketId}`),
-          axios.get('https://localhost:7217/api/Users'),
-          axios.get('https://localhost:7217/api/TicketTypes'),
+          axios.get(apiUrl2),
+          axios.get(apiUrl1),
         ]);
         setFormData(ticketResponse.data);
         setOldDetails(ticketResponse.data);
@@ -99,7 +106,7 @@ const EditTicket = () => {
     event.preventDefault();
 
     try {
-      const response = await axios.post('https://localhost:7217/api/TicketFlow', {
+      const response = await axios.post(apiUrl4, {
         ticketId: formData.ticketId,
         firstName: user.firstName,
         previousAssigneeEmail: formData.assigneeEmail,

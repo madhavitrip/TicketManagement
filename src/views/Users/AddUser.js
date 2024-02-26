@@ -2,12 +2,16 @@ import axios from "axios";
 import React, { useState,useEffect } from 'react';
 import './AddUser.css';
 import { Spinner } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 
+const apiUrl1= process.env.REACT_APP_API_DEPARTMENTS
+const apiUrl2=process.env.REACT_APP_API_ROLES
 const onClickViewUser = () => {
   window.location.href = './AllUsers';
 }
 
 const AddUser = () => {
+  const navigate = useNavigate();
   const [loading,setLoading]=useState(false);
   const [departments,setDepartments]=useState([]);
   const [Roles,setRoles]=useState([]);
@@ -90,7 +94,9 @@ const AddUser = () => {
           dateOfBirth: '',
           profilePicturePath: null,
         });
-      })
+     
+      navigate(`/Users/AddPermissions/${res.data.userId}`);
+    })
       .catch(err => {
         console.log(err);
         setMessage('Error adding User. Please try again.');
@@ -292,7 +298,7 @@ const AddUser = () => {
           <div className="col-sm-3"></div>
           <div className="col-sm-9 text-end">
             <button type="submit" className="btn btn-primary"disabled={loading}>
-              {loading? <><Spinner animation="border" size='sm'/>Adding User...</>:" User added"}
+              {loading? <><Spinner animation="border" size='sm'/>Adding User...</>:" Add User"}
               
             </button>
           </div>
