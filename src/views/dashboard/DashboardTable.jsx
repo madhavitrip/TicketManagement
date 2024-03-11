@@ -31,7 +31,7 @@ const DashboardTable = ({ tickets }) => {
             <th>DueDate</th>
             {/* <th>Department</th>
           <th>ProjectType</th> */}
-            <th>Assignee Email</th>
+            <th>Creator Email</th>
             {/* <th>Actions</th> */}
           </tr>
         </thead>
@@ -46,7 +46,7 @@ const DashboardTable = ({ tickets }) => {
               
               <td>{new Date(ticket.dueDate).toLocaleString()}</td>
              
-              <td>{ticket.assigneeEmail}</td>
+              <td>{ticket.email}</td>
               
             </tr>
           ))}
@@ -68,7 +68,7 @@ DashboardTable.propTypes = {
       dueDate: PropTypes.string.isRequired,
       // department: PropTypes.string.isRequired,
       // projectType: PropTypes.string.isRequired,
-      assigneeEmail: PropTypes.string.isRequired,
+      email: PropTypes.string.isRequired,
     })
   ).isRequired,
 };

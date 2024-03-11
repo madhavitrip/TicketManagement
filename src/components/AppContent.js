@@ -15,7 +15,7 @@ const Permission = lazy(() => import('./../views/Users/UserPermissons'));
 const AddTicket = lazy(() => import('./../views/Tickets/AddTicket')); 
 const EditTicket = lazy(() => import('./../views/Tickets/EditTicket')) 
 const ViewAllTickets = lazy(() => import('./../views/Tickets/ViewAllTickets')) 
-
+const Archive = lazy(() => import('./../views/ArchivingTicket/Archive')) 
 const Department = lazy(() => import('./../views/Department/Departments')) 
  
  
@@ -28,6 +28,7 @@ const AppContent = () => {
         <Routes> 
           {/* <Route path="/" name="Home" element={<Dashboard />} /> */} 
           <Route path="/dashboard" name="Dashboard" element={<Dashboard />} /> 
+          <Route path="/Archive" name="Archive" element={<Archive />} />
           <Route path="*" element={<Navigate to="/dashboard" />} /> 
           <Route path="/Users/AllUsers" name="All Users" element={<PermissionDecorator moduleId={1} permissionType="canViewOnly" element={<AllUsers />} />} /> 
           <Route path="/Users/AddUser" name="Add User" element={<PermissionDecorator moduleId={1} permissionType="canAddOnly" element={<AddUser />} />} /> 

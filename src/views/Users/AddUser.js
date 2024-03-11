@@ -11,7 +11,7 @@ const onClickViewUser = () => {
 }
 
 const AddUser = () => {
-  const navigate = useNavigate();
+  
   const [loading,setLoading]=useState(false);
   const [departments,setDepartments]=useState([]);
   const [Roles,setRoles]=useState([]);
@@ -56,6 +56,8 @@ const AddUser = () => {
     fetchRoles();
   }, []);
 
+  const navigate = useNavigate();
+
   const handleInputChange = (e) => {
     const { name, value, type } = e.target;
     setFormData((prevData) => ({
@@ -97,19 +99,23 @@ const AddUser = () => {
      
       navigate(`/Users/AddPermissions/${res.data.userId}`);
     })
-      .catch(err => {
-        console.log(err);
-        setMessage('Error adding User. Please try again.');
-        setLoading(false);
-      });
+    .catch(err => { 
+      console.log(err); 
+      if (err.response && err.response.status === 409) { 
+        setMessage('Error: Email already in use. Please choose a different email.'); 
+      } else { 
+        setMessage('Error adding User. Please try again.'); 
+      } 
+      setLoading(false); 
+    });
   }
   return (
     <div className=" au container mt-2">
       <div className='text-start mb-12 d-flex justify-content-between'>
-        <h4>Add User</h4>
+        {/* <h4>Add User</h4>
         <button type="button" className="btn btn-primary mb-3 " onClick={onClickViewUser}>
           View Users
-        </button>
+        </button> */}
       </div>
 
       {message && (

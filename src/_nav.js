@@ -52,12 +52,12 @@ const _nav = [
     ],
   },
   // Priority
-//   {
-//         component:CNavItem,
-//         name: 'Priority',
-//         to: '/PriorityTicket/Priority',
-//         icon: <CIcon icon={cilHandshake} customClassName="nav-icon" />,
-//   },
+  {
+        component:CNavItem,
+        name: 'Archive',
+        to: '/Archive',
+        icon: <CIcon icon={cilHandshake} customClassName="nav-icon" />,
+  },
 
   // Status
   {

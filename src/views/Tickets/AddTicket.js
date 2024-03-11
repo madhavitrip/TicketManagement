@@ -121,11 +121,11 @@ const AddTicket = () => {
   return (
     <div className="container mt-5">
       <div className='d-flex justify-content-between'>
-        <h4>Add Ticket</h4>
+        {/* <h4>Add Ticket</h4>
 
         <button type="button" className="btn btn-primary mb-3 " onClick={onClickViewTicket}>
           View Tickets
-        </button>
+        </button> */}
       </div>
 
       {message && (

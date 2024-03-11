@@ -1,14 +1,32 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, ListGroup, Form, Button, Collapse } from 'react-bootstrap';
+import { Container, Row, Col, Button, Form } from 'react-bootstrap';
 import axios from 'axios';
-import './Department.css';
+import DepartmentList from './DepartmentList';
+import CreateDepartmentForm from './CreateDepartmentForm';
+import Roles from './Roles';
+import CreateRoleForm from './CreateRoleForm';
+import Tickettype from './TicketType';
+import CreateTicketForm from './CreateTicketForm';
+import ProjectType from './ProjectType';
+import CreateProjectForm from './CreateProjForm';
 
-const Department = () => {
-    const [departments, setDepartments] = useState([]);
-    const [newDepartment, setNewDepartment] = useState('');
+const Departments = () => {
     const [openCreateDepartment, setOpenCreateDepartment] = useState(false);
+    const [activeTab, setActiveTab] = useState('departments');
+    const [departments, setDepartments] = useState([]);
+    const [editItem, setEditItem] = useState(null);
+    const [newDepartment, setNewDepartment] = useState('');
+    const [roles, setRoles] = useState([]);
+    const [newRoles, setNewRoles] = useState('');
+    const [openCreateRole, setOpenCreateRole] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [ticketType, setTicketTypes] = useState([]);
+    const [newTicketType, setNewTicketType] = useState('');
+    const [openTicketType, setOpenTicketType] = useState(false);
+    const [project, setProject] = useState([]);
+    const [newProject, setNewProject] = useState('');
+    const [openProject, setOpenProject] = useState(false);
 
-    // Fetch departments from the API when the component mounts 
     useEffect(() => {
         const fetchDepartments = async () => {
             try {
@@ -20,18 +38,149 @@ const Department = () => {
         };
 
         fetchDepartments();
-    }, []); // Empty dependency array ensures this effect runs only once on mount 
+    }, []);
+
+    useEffect(() => {
+        const fetchRoles = async () => {
+            try {
+                const response = await axios.get('https://localhost:7217/api/Roles');
+                setRoles(response.data);
+            } catch (error) {
+                console.error('Error fetching roles:', error);
+            }
+        };
+
+        fetchRoles();
+    }, []);
+
+    useEffect(() => {
+        const fetchProjects = async () => {
+            try {
+                const response = await axios.get('https://localhost:7217/api/ProjectType');
+                setProject(response.data);
+            } catch (error) {
+                console.error('Error fetching projects:', error);
+            }
+        };
+
+        fetchProjects();
+    }, []);
+
+    useEffect(() => {
+        const fetchTicketTypes = async () => {
+            try {
+                const response = await axios.get('https://localhost:7217/api/TicketTypes');
+                setTicketTypes(response.data);
+            } catch (error) {
+                console.error('Error fetching ticket types:', error);
+            }
+        };
+
+        fetchTicketTypes();
+    }, []);
+
+    const handleSearch = (e) => {
+        setSearchQuery(e.target.value);
+    };
+
+    const handleEdit = (item) => {
+        setEditItem(item);
+    };
+
+    const handleEditSubmit = async (e, id, updatedValue) => {
+        e.preventDefault();
+        if (updatedValue.trim() !== '') {
+            try {
+                await axios.put(`https://localhost:7217/api/DepartmentClasses/${id}`, {
+                    id: id,
+                    departmentName: updatedValue,
+                });
+
+                setDepartments((prevDepartments) =>
+                    prevDepartments.map((dept) =>
+                        dept.id === id ? { ...dept, departmentName: updatedValue } : dept
+                    )
+                );
+            } catch (error) {
+                console.error('Error updating item:', error);
+            }
+        }
+
+        setEditItem(null);
+        setNewDepartment('');
+    };
+
+    const handleEditSubmitRole = async (e, id, updatedValue) => {
+        e.preventDefault();
+        try {
+            await axios.put(`https://localhost:7217/api/Roles/${id}`, {
+                roleId: id,
+                role: updatedValue,
+            });
+
+            setRoles((prevRoles) =>
+                prevRoles.map((role) =>
+                    role.roleId === id ? { ...role, role: updatedValue } : role
+                )
+            );
+
+            setEditItem(null);
+            setNewRoles('');
+        } catch (error) {
+            console.error('Error updating role:', error);
+        }
+    };
+
+    const handleEditSubmitTicketType = async (e, id, updatedValue) => {
+        e.preventDefault();
+        try {
+            await axios.put(`https://localhost:7217/api/TicketTypes/${id}`, {
+                id: id,
+                ticketType: updatedValue,
+            });
+
+            setTicketTypes((prevTicketTypes) =>
+                prevTicketTypes.map((ticket) =>
+                    ticket.id === id ? { ...ticket, ticketType: updatedValue } : ticket
+                )
+            );
+
+            setEditItem(null);
+            setNewTicketType('');
+        } catch (error) {
+            console.error('Error updating ticket type:', error);
+        }
+    };
+
+    const handleEditSubmitProject = async (e, id, updatedValue) => {
+        e.preventDefault();
+        try {
+            await axios.put(`https://localhost:7217/api/ProjectType/${id}`, {
+                id: id,
+                name: updatedValue,
+            });
+
+            setProject((prevProjects) =>
+                prevProjects.map((project) =>
+                    project.id === id ? { ...project, name: updatedValue } : project
+                )
+            );
+
+            setEditItem(null);
+            setNewProject('');
+        } catch (error) {
+            console.error('Error updating project:', error);
+        }
+    };
 
     const handleCreateDepartment = async (e) => {
         e.preventDefault();
         if (newDepartment.trim() !== '') {
             try {
-                // Send a POST request to create a new department 
                 const response = await axios.post('https://localhost:7217/api/DepartmentClasses', {
                     departmentName: newDepartment,
                 });
 
-                // Update the state with the new department from the server response 
                 setDepartments([...departments, response.data]);
                 setNewDepartment('');
             } catch (error) {
@@ -40,76 +189,122 @@ const Department = () => {
         }
     };
 
+    const handleCreateRole = async (e) => {
+        e.preventDefault();
+        if (newRoles.trim() !== '') {
+            try {
+                const response = await axios.post('https://localhost:7217/api/Roles', {
+                    role: newRoles,
+                });
+
+                setRoles([...roles, response.data]);
+                setNewRoles('');
+            } catch (error) {
+                console.error('Error creating Role:', error);
+            }
+        }
+    };
+
+    const handleCreateProjectType = async (e) => {
+        e.preventDefault();
+        if (newProject.trim() !== '') {
+            try {
+                const response = await axios.post('https://localhost:7217/api/ProjectType', {
+                    projectTypes: newProject,
+                });
+
+                setProject([...project, response.data]);
+                setNewProject('');
+            } catch (error) {
+                console.error('Error creating Project Name:', error);
+            }
+        }
+    };
+
+    const handleCreateTicketType = async (e) => {
+        e.preventDefault();
+        if (newTicketType.trim() !== '') {
+            try {
+                const response = await axios.post('https://localhost:7217/api/TicketTypes', {
+                    ticketType: newTicketType,
+                });
+
+                setTicketTypes([...ticketType, response.data]);
+                setNewTicketType('');
+            } catch (error) {
+                console.error('Error creating Ticket Type:', error);
+            }
+        }
+    };
+
     return (
         <Container>
             <Row>
-                {/* Department List */}
-                <Col md={6}>
-                    <h4>Departments</h4>
-                    <ListGroup>
-                        <ul className="responsive-table">
-                            <li className="table-header mt-3">
-                                <div className="col col-1">SNo.</div>
-                                <div className="col col-2">Department</div>
-                            </li>
-                            {departments.map((dept) => (
-                                <ListGroup.Item key={dept.id}>
-                                    <li className="table-row mt-1">
-                                        <div className="col col-1" data-label="SNo.">{dept.id}</div>
-                                        <div className="col col-2" data-label="Department">{dept.departmentName}</div>
-                                    </li>
-                                </ListGroup.Item>
-                            ))}
-                        </ul>
-                    </ListGroup>
-                </Col>
+                <Col md={12}>
+                    <div className='row mb-3 justify-content-between display flex'>
+                        <h4 className='col-sm-3'>Categories</h4>
+                        <Form className='col-sm-3'>
+                            <Form.Control
+                                type="text"
+                                placeholder="Search"
+                                value={searchQuery}
+                                onChange={handleSearch}
+                            />
+                        </Form>
+                    </div>
+                    <div className="tab-container">
+                        <input type="radio" name="tab" id="tab1" className="tab tab--1" checked={activeTab === 'departments'} onChange={() => setActiveTab('departments')} />
+                        <label className="tab_label" htmlFor="tab1">Departments</label>
 
-                {/* Create Department Form */}
-                <Col md={6} className="position-relative">
-                    <Button
-                        onClick={() => setOpenCreateDepartment(!openCreateDepartment)}
-                        aria-controls="create-department-collapse"
-                        aria-expanded={openCreateDepartment}
-                        className="mb-3 position-absolute top-0 end-0"
+                        <input type="radio" name="tab" id="tab2" className="tab tab--2" checked={activeTab === 'roles'} onChange={() => setActiveTab('roles')} />
+                        <label className="tab_label" htmlFor="tab2">Roles</label>
 
-                    >
-                        Create
-                    </Button>
+                        <input type="radio" name="tab" id="tab3" className="tab tab--3" checked={activeTab === 'ticketType'} onChange={() => setActiveTab('ticketType')} />
+                        <label className="tab_label" htmlFor="tab3">Ticket Types</label>
 
-                    <Collapse in={openCreateDepartment}>
-                        <div id="create-department-collapse">
-                            <div className="mt-3"> {/* Add margin top to create space below the button */}
-                                <div className="card">
-                                    <div className="card-header">
-                                        <div className="text-header">Create Department</div>
-                                    </div>
-                                    <div className="card-body">
-                                        <Form onSubmit={handleCreateDepartment}>
-                                            <div className="form-group">
-                                                <label htmlFor="department">Enter New Department:</label>
-                                                <input
-                                                    required=""
-                                                    className="form-control"
-                                                    name="department"
-                                                    id="department"
-                                                    type="text"
-                                                    value={newDepartment}
-                                                    onChange={(e) => setNewDepartment(e.target.value)}
-                                                />
-                                            </div>
-                                            <Button type="submit" className="btn">
-                                                Submit
-                                            </Button>
-                                        </Form>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </Collapse>
+                        <input type="radio" name="tab" id="tab4" className="tab tab--4" checked={activeTab === 'project'} onChange={() => setActiveTab('project')} />
+                        <label className="tab_label" htmlFor="tab4">Projects</label>
+
+                        <div className="indicator"></div>
+                    </div>
+                    <Container>
+                        {activeTab === 'departments' && (
+                            <Row>
+                                <Col md={6}>
+                                    <DepartmentList
+                                        departments={departments}
+                                        handleEdit={handleEdit}
+                                        handleEditSubmit={handleEditSubmit}
+                                        newDepartment={newDepartment}
+                                        setNewDepartment={setNewDepartment}
+                                        editItem={editItem}
+                                        searchQuery={searchQuery}
+                                    />
+                                </Col>
+                                <Col md={6} className="position-relative">
+                                    <Button
+                                        onClick={() => setOpenCreateDepartment(!openCreateDepartment)}
+                                        aria-controls="create-department-collapse"
+                                        aria-expanded={openCreateDepartment}
+                                        className="mb-3 position-absolute top-0 end-0"
+                                    >
+                                        Create
+                                    </Button>
+                                    <CreateDepartmentForm
+                                        newDepartment={newDepartment}
+                                        setNewDepartment={setNewDepartment}
+                                        handleCreateDepartment={handleCreateDepartment}
+                                        openCreateDepartment={openCreateDepartment}
+                                    />
+                                </Col>
+                            </Row>
+                        )}
+                        {/* Add similar blocks for other tabs */}
+                    </Container>
                 </Col>
             </Row>
         </Container>
     );
 };
 
-export default Department;
+export default Departments;

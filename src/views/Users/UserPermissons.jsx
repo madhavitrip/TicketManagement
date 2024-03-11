@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'; 
-import { Container, Row, Col, Card, Table, Form, Button } from 'react-bootstrap'; 
+import { Container, Row, Col, Card, Table, Form, Button,Alert } from 'react-bootstrap'; 
 import 'bootstrap/dist/css/bootstrap.min.css'; 
 import axios from 'axios'; 
 import { useParams } from 'react-router-dom'; 
@@ -9,6 +9,7 @@ const PermissionPage = () => {
   const parsedUserID = parseInt(userId, 10); 
   const [permissions, setPermissions] = useState([]); 
   const [modules, setModules] = useState([]); 
+  const [successMessage, setSuccessMessage] = useState('');
  
   useEffect(() => { 
     // Fetch user's existing permissions 
@@ -65,7 +66,7 @@ const PermissionPage = () => {
       // Transform permissions to the desired format 
       const transformedPermissions = permissions.map(({ name, canview, canadd, canupdate, candelete }) => ({ 
         userId:parsedUserID, 
-        Id: modules.find((mod) => mod.name === name).id, // Assuming there is a module ID associated with each name 
+        id: modules.find((mod) => mod.name === name)?.id, // Assuming there is a module ID associated with each name 
         canAddOnly: canadd, 
         canDeleteOnly: candelete, 
         canUpdateOnly: canupdate, 
@@ -76,6 +77,7 @@ const PermissionPage = () => {
       .then(response => { 
         // Handle success, e.g., show a success message 
         console.log('Permissions added successfully:', response.data); 
+        setSuccessMessage('Permissions added successfully');
       }) 
       .catch(error => { 
         // Handle error, e.g., show an error message 
@@ -102,7 +104,7 @@ const PermissionPage = () => {
                     </tr> 
                   </thead> 
                   <tbody> 
-                    {modules.map((mod) => ( 
+                    {modules.length > 0 && modules.map((mod) => ( 
                       <tr key={mod.id}> 
                         <td>{mod.name}</td> 
                         <td> 
@@ -112,7 +114,7 @@ const PermissionPage = () => {
                             label="" 
                             onChange={(e) => handlePermissionChange(mod.name, 'canview', e.target.checked)} 
                             checked={permissions.some((p) => p.name === mod.name && p.canview)}
-/> 
+                          /> 
                         </td> 
                         <td> 
                           <Form.Check 
@@ -150,7 +152,7 @@ const PermissionPage = () => {
           </Card> 
         </Col> 
       </Row> 
- 
+  
       <Row className="justify-content-center mt-3"> 
         <Col md={8}> 
           <Card className="mt-3"> 
@@ -167,6 +169,7 @@ const PermissionPage = () => {
                 <Button variant="primary" onClick={handleAddPermission}> 
                   Add Permission 
                 </Button> 
+                {successMessage && <Alert variant="success" className="mt-3">{successMessage}</Alert>}
               </div> 
             </Card.Body> 
           </Card> 
@@ -174,6 +177,7 @@ const PermissionPage = () => {
       </Row> 
     </Container> 
   ); 
+   
 }; 
  
 export default PermissionPage;
