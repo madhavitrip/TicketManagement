@@ -4,6 +4,7 @@ import ArchiveTable from './../ArchivingTicket/Archive'; // Import the ArchiveTa
 import { Spinner, Button, Dropdown, DropdownButton, Modal } from 'react-bootstrap'; 
 import PermissionChecker from './../../context/PermissionChecker'; 
 import AddTicket from './AddTicket'; // Import the AddTicket component 
+import { useNavigate } from 'react-router-dom';
  
 const ViewAllTickets = () => { 
   const [tickets, setTickets] = useState([]); 
@@ -13,9 +14,11 @@ const ViewAllTickets = () => {
   const [statusFilter, setStatusFilter] = useState('All'); 
   const [modalShow, setModalShow] = useState(false); // New state for modal 
  
+ let navigate = useNavigate();
   const onClickAddTicket = () => { 
     // Open modal when clicking Add Ticket 
-    setModalShow(true); 
+   let path= `/Tickets/AddTicket`;
+   navigate(path);
   }; 
  
   const fetchData = async (url) => { 
@@ -99,7 +102,7 @@ const ViewAllTickets = () => {
                 ) : (
                   <>
                     {statusFilter === 'All' ? (
-                      <TicketsTable tickets={tickets} hasPermission={hasPermission} />
+                      <TicketsTable tickets={tickets} hasPermission={hasPermission}  />
                     ) : (
                       <TicketsTable tickets={tickets.filter(ticket => ticket.status === statusFilter)} hasPermission={hasPermission} />
                     )}

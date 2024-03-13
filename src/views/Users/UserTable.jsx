@@ -6,8 +6,10 @@ import $ from 'jquery';
 import { FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faEye, faPenToSquare, faTrash} from '@fortawesome/free-solid-svg-icons'
 import PermissionChecker from "./../../context/PermissionChecker";
+import {useSecurity} from './../../context/Security';
 
 const UserTable = ({ users, hasPermission }) => {
+  const {encrypt}= useSecurity();
   const tableRef= useRef(null)
     useEffect(() =>{
       $(tableRef.current).DataTable();
@@ -38,7 +40,7 @@ const UserTable = ({ users, hasPermission }) => {
             <td className="d-flex gap-3 text-primary">
             <div className="d-flex gap-3 text-primary justify-content-center">
                   {hasPermission(1, 'canViewOnly') && <Link to={`Views/${user.userId}`}><FontAwesomeIcon icon={faEye} className="text-success"/></Link> }
-                  {hasPermission(1, 'canUpdateOnly') && <Link to={`/Users/EditUser/${user.userId}`}><FontAwesomeIcon icon={faPenToSquare} className="text-primary"/> </Link>}
+                  {hasPermission(1, 'canUpdateOnly') && <Link to={`/Users/EditUser/${encrypt(user.userId)}`}><FontAwesomeIcon icon={faPenToSquare} className="text-primary"/> </Link>}
                   {hasPermission(1, 'canDeleteOnly') && <FontAwesomeIcon icon={faTrash} className="text-danger"/>}
                 </div>
   

@@ -1,22 +1,19 @@
 import axios from "axios";
-import React, { useState,useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useUser } from './../../context/UserContext';
-import {  Spinner } from 'react-bootstrap';
+import { Spinner } from 'react-bootstrap';
 import { useNavigate } from "react-router-dom";
-
-const onClickViewTicket = () => {
-  window.location.href = '/Tickets';
-}
+import Select from 'react-select';
 
 const AddTicket = () => {
-  const navigate= useNavigate();
+  const navigate = useNavigate();
   const { user } = useUser();
-  const [loading,setLoading]= useState(false)
-  const[ticketType,setTicketType]=useState([]);
-  const[Assignee,setAssignee]=useState([]);
- 
-  const initialFormData = {
-    ticketId: '0',
+
+  const [loading, setLoading] = useState(false);
+  const [ticketType, setTicketType] = useState([]);
+  const [projectType, setProjectType] = useState([]);
+  const [Assignee, setAssignee] = useState([]);
+  const [formData, setFormData] = useState({
     email: user.email,
     priority: 'low',
     title: '',
@@ -26,13 +23,10 @@ const AddTicket = () => {
     projectType: '',
     dueDate: '',
     description: '',
-    assigneeEmail:'',
-  };
-
-
-  const [formData, setFormData] = useState(initialFormData);
+    assigneeEmail: '',
+    attachments: null
+  });
   const [message, setMessage] = useState(null);
-
 
   useEffect(() => {
     async function fetchAssignee() {
@@ -60,45 +54,107 @@ const AddTicket = () => {
     fetchTickettype();
   }, []);
 
-  const handleInputChange = (e) => {
-    const { name, value, type } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: type === 'file' ? e.target.files : value,
-    }));
-    
-    // dept value
-    if (name === 'assigneeEmail') {
-      const selectedAssignee = Assignee.find(assignee => assignee.email === value);   
-      if (selectedAssignee) {   
-        setFormData(prevData => ({
-          ...prevData,
-          department: selectedAssignee.departmentName,
-        }));
-      } else {
-        console.log('Assignee not found.');
+  useEffect(() => {
+    async function fetchProjecttype() {
+      try {
+        const response = await axios.get('https://localhost:7217/api/ProjectType');
+        setProjectType(response.data);
+      } catch (error) {
+        console.error('Error fetching Project Type:', error);
       }
+    }
+
+    fetchProjecttype();
+  }, []);
+
+  // Modify handleInputChange function 
+  const handleInputChange = (e) => {
+    const { name, value } = e.target || e;
+
+
+    if (name === 'assigneeEmail') {
+      const selectedAssignee = Assignee.find(assignee => assignee.email === value);
+
+
+      const isSelfAssign = value.toLowerCase() === user.email.toLowerCase();
+
+
+      const newDepartment = isSelfAssign ? selectedAssignee.departmentName : (selectedAssignee?.departmentName || '');
+
+
+      setFormData((prevData) => ({
+        ...prevData,
+        [name]: value,
+        department: newDepartment,
+        status: isSelfAssign ? 'Self-Assigned' : 'Active',
+      }));
+    } else {
+      setFormData((prevData) => ({
+        ...prevData,
+        [name]: value,
+      }));
     }
   };
 
-  async function handleUserSubmit(event) {
+  // ... 
+
+  // Modify useEffect function for handling assignee changes 
+  useEffect(() => {
+    const selectedAssignee = Assignee.find((assignee) => assignee.email === formData.assigneeEmail);
+    const isSelfAssign = formData.assigneeEmail.toLowerCase() === user.email.toLowerCase();
+    const newDepartment = isSelfAssign ? selectedAssignee.departmentName : (selectedAssignee?.departmentName || '');
+
+    setFormData((prevData) => ({
+      ...prevData,
+      department: newDepartment,
+      status: isSelfAssign ? 'Self-Assigned' : 'Active',
+    }));
+  }, [formData.assigneeEmail, Assignee, user]);
+
+  // ... 
+
+
+  const handleFileChange = (e) => {
+    setFormData(prevData => ({
+      ...prevData,
+      attachments: e.target.files
+    }));
+  };
+
+  const handleTicketSubmit = async (event) => {
     event.preventDefault();
     setLoading(true);
-    const currentDate = new Date().toISOString().split('T')[0];
-    
-    if (formData.dueDate < currentDate) {
-      setMessage('Due Date must be greater than or equal to the current date.');
-      return;
-    }
-  
+
+    const formattedParams = Object.entries(formData)
+      .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+      .join('&');
+
+    const formDataToSend = new FormData();
+    Object.entries(formData).forEach(([key, value]) => {
+      if (key === 'attachments') {
+        if (value) {
+          for (let i = 0; i < value.length; i++) {
+            formDataToSend.append('attachments', value[i]);
+          }
+        }
+      } else {
+        formDataToSend.append(key, value);
+      }
+    });
+
     try {
-      const res = await axios.post('https://localhost:7217/api/Ticket', formData);
+      const res = await
+        axios.post (`https://localhost:7217/api/Ticket?${formattedParams}`, formDataToSend, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+       
       console.log(res);
       setMessage('Ticket added successfully!');
       setLoading(false);
       setFormData({
-        ticketId: '0',
-        email: 'user.email',
+        email: user.email,
         priority: 'low',
         title: '',
         department: '',
@@ -108,6 +164,7 @@ const AddTicket = () => {
         dueDate: '',
         description: '',
         assigneeEmail: '',
+        attachments: null
       });
       navigate(`/Tickets/AddTicket/${res.data.userId}`);
     } catch (err) {
@@ -115,18 +172,11 @@ const AddTicket = () => {
       setMessage('Error adding ticket. Please try again.');
       setLoading(false);
     }
-  }
-  
+  };
 
   return (
     <div className="container mt-5">
-      <div className='d-flex justify-content-between'>
-        {/* <h4>Add Ticket</h4>
-
-        <button type="button" className="btn btn-primary mb-3 " onClick={onClickViewTicket}>
-          View Tickets
-        </button> */}
-      </div>
+      <div className='d-flex justify-content-between'></div>
 
       {message && (
         <div className={`alert ${message.includes('successfully') ? 'alert-success' : 'alert-danger'}`} role="alert">
@@ -134,7 +184,7 @@ const AddTicket = () => {
         </div>
       )}
 
-      <form onSubmit={handleUserSubmit}>
+      <form onSubmit={handleTicketSubmit}>
         {/* ticketId */}
         <div className="row mb-3">
           <label htmlFor="ticketId" className="col-sm-3 col-form-label text-end">
@@ -156,7 +206,7 @@ const AddTicket = () => {
 
           {/* priority */}
           <label htmlFor="priority" className="col-sm-3 col-form-label text-end">
-          Priority<span className="text-danger">  * </span>
+            Priority<span className="text-danger"> * </span>
           </label>
           <div className="col-sm-3">
             <select
@@ -178,7 +228,7 @@ const AddTicket = () => {
         {/* title */}
         <div className="row mb-3">
           <label htmlFor="title" className="col-sm-3 col-form-label text-end">
-           Title<span className="text-danger">  * </span>
+            Title<span className="text-danger"> * </span>
           </label>
           <div className="col-sm-3">
             <input
@@ -193,68 +243,67 @@ const AddTicket = () => {
           </div>
           {/* department */}
           <label htmlFor="department" className="col-sm-3 col-form-label text-end">
-           Department<span className="text-danger">  * </span>
+            Department<span className="text-danger"> * </span>
           </label>
           <div className="col-sm-3">
-          <input
+            <input
               className="form-control"
               id="department"
               name="department"
-              value={formData.department}
+              value={formData.department || ''}
               required
               onChange={handleInputChange}
-              disabled
-            > 
-            </input>
+              readOnly
+            />
           </div>
         </div>
 
         {/* Ticket Type */}
         <div className="row mb-3">
           <label htmlFor="ticketType" className="col-sm-3 col-form-label text-end">
-          Ticket Type<span className="text-danger">  * </span>
+            Ticket Type<span className="text-danger"> * </span>
           </label>
           <div className="col-sm-3">
-          <select
-              className="form-select"
-              id="ticketType"
-              name="ticketType"
-             
-              required
-              onChange={handleInputChange}
-            >
-              <option value="">Select Ticket Type</option>
-              {ticketType.map(TT => (
-                <option key={TT.id} value={TT.ticketType}>{TT.ticketType}</option>
-              ))}
-            </select>
+            <Select
+              options={ticketType.map((TT) => ({
+                label: TT.ticketType,
+                value: TT.ticketType,
+              }))}
+              value={{
+                label: formData.ticketType,
+                value: formData.ticketType,
+
+              }}
+              onChange={(selectedOption) =>
+                handleInputChange({
+                  target: { name: 'ticketType', value: selectedOption.value },
+                })
+              }
+              isSearchable
+              placeholder="Select Ticket Type"
+            />
           </div>
           {/* status */}
           <label htmlFor="status" className="col-sm-3 col-form-label text-end">
-          Status<span className="text-danger">  * </span>
+            Status<span className="text-danger"> * </span>
           </label>
           <div className="col-sm-3">
-            <select
-              className="form-select"
+            <input
+              className="form-control"
               id="status"
               name="status"
-              
+              value={formData.status}
               required
               onChange={handleInputChange}
-            >
-               <option defaultValue>Select Status</option>
-              <option value="Active">Active</option>
-              <option value="Pending">Pending</option>
-              <option value="Unassigned">Unassigned</option>
-              <option value="Completed">Completed</option>
-            </select>
+              readOnly
+            />
           </div>
         </div>
 
         {/* Creator ID */}
         <div className="row mb-3">
           <label htmlFor="email" className="col-sm-3 col-form-label text-end">
-           Creator<span className="text-danger">  * </span>
+            Creator<span className="text-danger"> * </span>
           </label>
           <div className="col-sm-3">
             <input
@@ -272,45 +321,55 @@ const AddTicket = () => {
 
           {/* Assigned To */}
           <label htmlFor="assigneeEmail" className="col-sm-3 col-form-label text-end">
-           Assignee Email<span className="text-danger">  * </span>
+            Assignee Email<span className="text-danger"> * </span>
           </label>
           <div className="col-sm-3">
-          <select
-              className="form-select"
-              id="assigneeEmail"
-              name="assigneeEmail"
-              
-              required
-              onChange={handleInputChange}
-            >
-              <option selected key="self" value={user.email}>Self Assigned</option>
-              {Assignee.map(Setas => (
-                <option key={Setas.id} value={Setas.email}>{Setas.email}</option>
-              ))}
-            </select>
-            
+            <Select
+              options={Assignee.map((Setas) => ({
+                label: Setas.email,
+                value: Setas.email,
+              }))}
+              value={{
+                label: formData.assigneeEmail,
+                value: formData.assigneeEmail,
+              }}
+              onChange={(selectedOption) =>
+                handleInputChange({
+                  target: { name: 'assigneeEmail', value: selectedOption.value },
+                })
+              }
+              isSearchable
+              placeholder="Select Assignee"
+            />
           </div>
         </div>
         {/* Project Type */}
         <div className="row mb-3">
           <label htmlFor="projectType" className="col-sm-3 col-form-label text-end">
-           Project Type<span className="text-danger">  * </span>
+            Project Type<span className="text-danger"> * </span>
           </label>
           <div className="col-sm-3">
-            <input
-              type="text"
-              className="form-control"
-              id="projectType"
-              name="projectType"
-              placeholder="Enter Project Type"
-              required
-              onChange={handleInputChange}
+            <Select
+              options={projectType.map((pt) => ({
+                label: pt.name,
+                value: pt.name,
+              }))}
+              value={{
+                label: formData.projectType,
+                value: formData.projectType,
+              }}
+              onChange={(selectedOption) =>
+                handleInputChange({
+                  target: { name: 'projectType', value: selectedOption.value },
+                })
+              }
+              isSearchable
+              placeholder="Select Project Type"
             />
           </div>
-
           {/* Due Date */}
           <label htmlFor="dueDate" className="col-sm-3 col-form-label text-end">
-           Due Date<span className="text-danger">  * </span>
+            Due Date<span className="text-danger"> * </span>
           </label>
           <div className="col-sm-3">
             <input
@@ -323,13 +382,12 @@ const AddTicket = () => {
               onChange={handleInputChange}
             />
           </div>
-
         </div>
 
         {/* description */}
         <div className="row mb-3">
           <label htmlFor="description" className="col-sm-3 col-form-label text-end">
-           Description<span className="text-danger">  * </span>
+            Description<span className="text-danger"> * </span>
           </label>
           <div className="col-sm-9">
             <textarea
@@ -344,7 +402,6 @@ const AddTicket = () => {
           </div>
         </div>
 
-        {/* Attachments */}
         <div className="row mb-3">
           <label htmlFor="attachments" className="col-sm-3 col-form-label text-end">
             Attachments:
@@ -356,19 +413,16 @@ const AddTicket = () => {
               id="attachments"
               name="attachments"
               multiple
-              onChange={handleInputChange}
+              onChange={handleFileChange}
             />
-
           </div>
-
-
         </div>
 
         <div className="row mb-3">
           <div className="col-sm-3"></div>
           <div className="col-sm-9 text-end">
             <button type="submit" className="btn btn-primary" disabled={loading}>
-               {loading? <><Spinner animation="border" size='sm' /> Adding Ticket...</>:"Add Ticket"}
+              {loading ? <><Spinner animation="border" size='sm' /> Adding Ticket...</> : "Add Ticket"}
             </button>
           </div>
         </div>

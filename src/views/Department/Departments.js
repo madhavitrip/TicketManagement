@@ -219,7 +219,7 @@ const Departments = () => {
             try {
                 // Send a POST request to create a new department  
                 const response = await axios.post('https://localhost:7217/api/ProjectType', {
-                    projectTypes: newProject,
+                    name: newProject,
                 });
 
                 // Update the state with the new department from the server respons
@@ -231,9 +231,9 @@ const Departments = () => {
             }
         }
     };
-    const handleCreateTicketType = async (e, hasPermission) => {
+    const handleCreateTicketType = async (e) => {
         e.preventDefault();
-        if (newTicketType.trim() !== '' && hasPermission(3, "canAddOnly")) {
+        if (newTicketType.trim() !== '' ) {
             try {
                 // Send a POST request to create a new department  
                 const response = await axios.post('https://localhost:7217/api/TicketTypes', {

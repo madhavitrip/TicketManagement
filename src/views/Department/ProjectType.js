@@ -1,5 +1,5 @@
 import React from 'react';
-import {Button, Form } from 'react-bootstrap'; // Import Collapse
+import { Button, Form } from 'react-bootstrap'; // Import Collapse
 import PropTypes from 'prop-types'; // Import PropTypes
 
 const ProjectType = ({ project, newProject, setNewProject, handleEdit, handleEditSubmitProject, editItem, searchQuery }) => {
@@ -10,7 +10,7 @@ const ProjectType = ({ project, newProject, setNewProject, handleEdit, handleEdi
             <div className="row">
                 <div className="col-lg-7 mx-auto bg-white rounded shadow">
                     <div className="table-responsive">
-                        <table className="table table-fixed">
+                        <table className="table">
                             <thead>
                                 <tr className="table-header mt-3">
                                     <th scope="col" className="col-3">S.No</th>

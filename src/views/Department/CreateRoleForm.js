@@ -1,15 +1,16 @@
 import React from 'react';
 import { Button, Form, Collapse } from 'react-bootstrap'; // Import Collapse
 import PropTypes from 'prop-types';
+import './Department.css';
 
 const CreateRoleForm = ({ newRoles, setNewRoles, handleCreateRole, openCreateRole}) => {
     return (
         <Collapse in={openCreateRole}>
         <div id="create-department-collapse">
             <div className="mt-3"> {/* Add margin top to create space below the button */}
-                <div className="card">
+                <div className="glassmorphism-card">
                     <div className="card-header">
-                        <div className="text-header">Create Role</div>
+                        <div className="text-header fw-bold fs-3" style={{color:'#5856d6'}}>Create Role</div>
                     </div>
                     <div className="card-body">
                         <Form onSubmit={handleCreateRole}>

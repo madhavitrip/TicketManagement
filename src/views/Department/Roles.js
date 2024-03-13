@@ -10,7 +10,7 @@ const Roles = ({ roles, handleEdit, handleEditSubmitRole, newRoles, setNewRoles,
             <div className="row">
                 <div className="col-lg-7 mx-auto bg-white rounded shadow">
                     <div className="table-responsive">
-                        <table className="table table-fixed">
+                        <table className="table">
                             <thead>
                                 <tr className="table-header mt-3">
                                     <th scope="col" className="col-3">S.No</th>

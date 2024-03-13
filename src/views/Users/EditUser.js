@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
+import {useSecurity} from './../../context/Security';
 
 const EditUser = () => {
     const [message, setMessage] = useState(null);
     const { userId } = useParams();
+    const {decrypt} = useSecurity();
+    const decryptid = decrypt(userId)
     const [formData, setFormData] = useState({
-        
+
         firstName: '',
         lastName: '',
         email: '',
@@ -20,7 +23,7 @@ const EditUser = () => {
     });
 
     useEffect(() => {
-        axios.get(`https://localhost:7217/api/Users/${userId}`)
+        axios.get(`https://localhost:7217/api/Users/${decryptid}`)
             .then(res => {
                 setFormData(res.data);
                 console.log(res.data)
@@ -29,7 +32,7 @@ const EditUser = () => {
                 console.log(err);
                 setMessage('Error updating user. Please try again.');
             });
-    }, [userId]);
+    }, [decryptid]);
 
     const handleInputChange = (e) => {
         const { name, value, type } = e.target;
@@ -47,7 +50,7 @@ const EditUser = () => {
         //     return;
         // }
 
-        axios.put(`https://localhost:7217/api/Users/${userId}`, formData)
+        axios.put(`https://localhost:7217/api/Users/${decryptid}`, formData)
             .then(res => {
                 console.log(res);
                 setMessage('User updated successfully!');
@@ -228,20 +231,8 @@ const EditUser = () => {
                         />
                     </div>
 
-                    {/* Confirm Password
-          <label htmlFor="confirmPassword" className="col-sm-3 col-form-label text-end">
-            Confirm Password:
-          </label>
-          <div className="col-sm-3">
-            <input
-              type="password"
-              className="form-control"
-              id="confirmPassword"
-              name="confirmPassword"
-              placeholder="Confirm password"
-              required
-              onChange={handleInputChange}
-            /> */}
+
+
                     {/* </div> */}
                 </div>
 

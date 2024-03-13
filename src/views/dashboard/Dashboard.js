@@ -9,7 +9,7 @@ const Dashboard = () => {
   const [counts, setCounts] = useState({
     active: 0,
     pending: 0,
-    unassigned: 0,
+    selfassigned: 0,
     completed: 0
   });
   const [tickets, setTickets] = useState([]);
@@ -24,7 +24,7 @@ const Dashboard = () => {
         setCounts({
           active: countsData.activeCount,
           pending: countsData.pendingCount,
-          unassigned: countsData.unassignedCount,
+          selfassigned: countsData.selfassignedCount,
           completed: countsData.completedCount
         });
 
@@ -75,10 +75,10 @@ const Dashboard = () => {
           <div className="card"> 
               <div className="card-inner"> 
                 <div className="card-front"> 
-                  <p>Unassigned</p> 
+                  <p>Self-Assigned</p> 
                 </div> 
                 <div className="card-back"> 
-                  <p>{counts.unassigned}</p> 
+                  <p>{counts.selfassigned}</p> 
                 </div> 
               </div> 
             </div> 

@@ -11,6 +11,8 @@ const ArchiveTable = () => {
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null); // State for error message
+  const [showAttachmentModal, setShowAttachmentModal] = useState(false);
+  const [isImageAttachment, setIsImageAttachment] = useState(false);
 
   useEffect(() => {
     const fetchArchivedTickets = async () => {
@@ -32,6 +34,9 @@ const ArchiveTable = () => {
     setSelectedTicket(ticket);
     setModalShow(true);
   };
+  const handleCloseAttachmentModal = () => {
+    setShowAttachmentModal(false);
+  };
 
   const handleShowConfirmationModal = (ticket) => {
     setSelectedTicket(ticket);
@@ -42,12 +47,19 @@ const ArchiveTable = () => {
     setSelectedTicket(null);
     setShowConfirmationModal(false);
   };
-
-  const handleUnarchiveTicket = () => {
-    console.log('Unarchiving ticket:', selectedTicket);
-    // Implement unarchiving logic here
-    handleCloseConfirmationModal();
+  const handleUnarchiveTicket = async () => {
+    try {
+      await axios.post(`https://localhost:7217/api/Ticket/${selectedTicket.ticketId}/unarchive`);
+      // After unarchiving, fetch the updated list of archived tickets
+      const response = await axios.get('https://localhost:7217/api/Ticket/Archived');
+      setArchivedTickets(response.data);
+    } catch (error) {
+      console.error('Error unarchiving ticket:', error);
+    } finally {
+      handleCloseConfirmationModal();
+    }
   };
+  
 
   return (
     <div className='mt-6 table-responsive'>
@@ -135,14 +147,18 @@ const ArchiveTable = () => {
             <p>Creator ID: {selectedTicket.email}</p>
             <p>Assignee ID: {selectedTicket.assigneeEmail}</p>
             <p>Attachments:</p>
-            {selectedTicket.attachments && selectedTicket.attachments.length > 0 ? (
-              <ul>
-                {selectedTicket.attachments.map((attachment, idx) => (
-                  <li key={idx}>{attachment}</li>
-                ))}
-              </ul>
-            ) : (
-              <p>No attachments</p>
+            {selectedTicket.attachment && (
+              <div>
+                {isImageAttachment && /\.(png|jpg|jpeg|gif|bmp)$/i.test(selectedTicket.attachment) ? (
+                  <img src={`https://localhost:7217/${selectedTicket.attachment.replace('wwwroot/', '')}`} alt="Attachment" className="img-fluid" />
+                ) : (
+                  <p>
+                    <a href={`https://localhost:7217/${selectedTicket.attachment.replace('wwwroot/', '')}`} target="_blank" rel="noopener noreferrer">
+                      View Attachment
+                    </a>
+                  </p>
+                )}
+              </div>
             )}
           </Modal.Body>
           <Modal.Footer>
